@@ -1,5 +1,6 @@
 import sys
 import getopt
+import logging
 from PyQt5.Qt import QApplication
 
 from ui.fs_mainwindow import FS_MainWindow
@@ -12,6 +13,7 @@ def print_help():
 
 if __name__ == '__main__':
     logger = FS_Logger.get_instance()
+    logger.setLevel(logging.DEBUG)
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], 'h', ['help'])

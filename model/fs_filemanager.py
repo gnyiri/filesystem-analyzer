@@ -1,8 +1,10 @@
 import threading
 import os
+from PyQt5.QtCore import QThread
 
 from util.fs_logger import FS_Logger
 from model.fs_treeitem import FS_TreeItem, FS_ItemType
+from task.FS_FileScannerTask import FS_FileScannerCtxt, FS_FileScannerTask
 
 
 class FS_FileManager(object):
@@ -29,7 +31,6 @@ class FS_FileManager(object):
         self._logger = FS_Logger.get_instance()
         self._path = "."
         self._items = list()
-        self.update()
 
     @property
     def path(self):
@@ -46,6 +47,12 @@ class FS_FileManager(object):
         return self._items
 
     def update(self):
+        self._logger.info("Launch thread ..")
+        update_thread = threading.Thread(target=self.update_w)
+        update_thread.start()
+        self._logger.info("Done")
+
+    def update_w(self):
         self._logger.info("Scanning files in %s", self.path)
 
         self.items.clear()

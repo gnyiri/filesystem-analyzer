@@ -2,40 +2,41 @@ import os
 
 from PyQt5.QtCore import QAbstractItemModel, QVariant, QModelIndex, Qt
 
-from .fs_treeitem import FS_TreeItem
-from .fs_treeitem import FS_ItemType
-from .fs_filemanager import FS_FileManager
+from .fs_treeitem import FS_TreeItem, FS_ItemType
+
 from util.fs_base import FS_Base
 
 
 class FS_FileTreeModel(QAbstractItemModel, FS_Base):
     """
-    Encapsulates the Linux process hierarchy and acts as a model for the
+    Encapsulates the file extension/file hierarchy as a model for the
     associated QTreeView
     """
 
-    def __init__(self, parent=None, path=os.path.curdir):
+    def __init__(self, parent=None):
         FS_Base.__init__(self)
         QAbstractItemModel.__init__(self, parent)
 
-        self._path = path
-        self._file_manager = FS_FileManager.get_instance()
-        self._file_manager.path = path
-        self._root = self._file_manager.items[0]
+        self._root = None
 
     @property
-    def path(self):
-        return self._file_manager.path
+    def root(self):
+        return self._root
 
-    @path.setter
-    def path(self, value):
-        self.beginResetModel()
-        self._root = None
-        self._file_manager.path = value
-        self._root = self._file_manager.items[0]
-        self.endResetModel()
+    @root.setter
+    def root(self, value):
+        self._root = value
+
+    def reset_root(self):
+        self.root = FS_TreeItem("Extensions", FS_ItemType.TYPE_EXTENSION, path=None, parent=None)
+
+    def reset_model(self):
+        self.logger.info("Refresh tree")
+        self.modelReset.emit()
 
     def columnCount(self, parent=None, *args, **kwargs):
+        if not self._root:
+            return 0
         if parent.isValid():
             parent_item = parent.internalPointer()
             return parent_item.column_count()
@@ -43,6 +44,8 @@ class FS_FileTreeModel(QAbstractItemModel, FS_Base):
             return self._root.column_count()
 
     def rowCount(self, parent=None, *args, **kwargs):
+        if not self._root:
+            return 0
         if not parent or parent.column() > 0:
             return 0
         parent_item = parent.internalPointer() if parent.isValid() else self._root

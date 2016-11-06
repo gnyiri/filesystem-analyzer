@@ -10,7 +10,8 @@ class FS_ItemType(Enum):
 
 
 class FS_TreeItem(FS_Base):
-    ATTRIBUTES = ["name", "size", "path"]
+    ATTRIBUTES = ["name", "count", "size", "path"]
+    SIZE_DIVISOR = 1024 * 1024
 
     def __init__(self, name, item_type, path=None, parent=None):
         FS_Base.__init__(self)
@@ -22,12 +23,17 @@ class FS_TreeItem(FS_Base):
             self._parent.append_child(self)
         self._size = 0
         self._path = path
-        if self._path:
-            stat = os.stat(self._path)
-            self._size = stat.st_size
         self._children = list()
 
-        self.logger.debug("Created item %s, %s", name, path)
+        if self._path:
+            try:
+                stat = os.stat(self._path)
+                self._size = stat.st_size
+            except Exception as e:
+                self.logger.exception(e)
+                return
+
+        # self.logger.debug("Created item %s, %s", name, path)
 
     @property
     def parent(self):
@@ -50,7 +56,9 @@ class FS_TreeItem(FS_Base):
         if column == 0:
             return self.name
         elif column == 1:
-            return self.size
+            return len(self.children)
+        elif column == 2:
+            return self.size / FS_TreeItem.SIZE_DIVISOR
         elif column == 2:
             return self.path
         else:
