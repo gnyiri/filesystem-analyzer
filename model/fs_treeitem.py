@@ -59,7 +59,7 @@ class FS_TreeItem(FS_Base):
             return len(self.children)
         elif column == 2:
             return self.size / FS_TreeItem.SIZE_DIVISOR
-        elif column == 2:
+        elif column == 3:
             return self.path
         else:
             return str("n/a")
