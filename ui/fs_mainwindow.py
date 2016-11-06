@@ -1,4 +1,4 @@
-from PyQt5.Qt import QMainWindow, QAction, QFileDialog, QIcon, QProgressBar, QModelIndex
+from PyQt5.Qt import QMainWindow, QAction, QFileDialog, QIcon, QProgressBar, QPushButton
 
 from util.fs_app import FS_App
 from task.fs_filescannertask import FS_FileScannerTask, FS_FileScannerCtxt
@@ -18,6 +18,7 @@ class FS_MainWindow(QMainWindow, FS_Base):
         self.progressbar = None
         self.file_tree_widget = None
         self.file_tree_model = None
+        self.file_scanner_thread = None
 
         self.build_ui()
         self.build_content()
@@ -39,7 +40,11 @@ class FS_MainWindow(QMainWindow, FS_Base):
         self.progressbar.hide()
         self.progressbar.setRange(0, 100)
 
+        cancel_button = QPushButton(QIcon("res/cancel-button.svg"), "Cancel", self)
+        cancel_button.clicked.connect(self.set_path_cancel)
+
         self.statusBar().addPermanentWidget(self.progressbar)
+        self.statusBar().addPermanentWidget(cancel_button)
 
         self.file_tree_widget = FS_FileTreeWidget(self)
         self.file_tree_model = FS_FileTreeModel(self)
@@ -62,15 +67,18 @@ class FS_MainWindow(QMainWindow, FS_Base):
         self.progressbar.show()
         self.file_tree_model.reset_root()
         file_scanner_ctxt = FS_FileScannerCtxt(path, self.file_tree_model.root)
-        file_scanner_thread = FS_FileScannerTask(self, file_scanner_ctxt)
-        file_scanner_thread.notifyProgress.connect(self.update_progress)
-        file_scanner_thread.notifyFinish.connect(self.set_path_action_finish)
-        file_scanner_thread.start()
+        self.file_scanner_thread = FS_FileScannerTask(self, file_scanner_ctxt)
+        self.file_scanner_thread.notifyProgress.connect(self.update_progress)
+        self.file_scanner_thread.notifyFinish.connect(self.set_path_action_finish)
+        self.file_scanner_thread.start()
 
     def set_path_action_finish(self):
         self.progressbar.hide()
         self.file_tree_model.reset_model()
         self.file_tree_widget.setColumnWidth(0, 250)
+
+    def set_path_cancel(self):
+        self.file_scanner_thread.stop_flag = True
 
     def update_progress(self, value):
         self.progressbar.setValue(value)
