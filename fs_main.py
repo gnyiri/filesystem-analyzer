@@ -28,7 +28,7 @@ if __name__ == '__main__':
     except getopt.GetoptError:
         print_help()
 
-    logger.debug("Start application")
+    logger.info("Start application")
     APP = QApplication(sys.argv)
     ui = FS_MainWindow()
     ui.show()

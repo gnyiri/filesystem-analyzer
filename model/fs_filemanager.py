@@ -4,7 +4,7 @@ from PyQt5.QtCore import QThread
 
 from util.fs_logger import FS_Logger
 from model.fs_treeitem import FS_TreeItem, FS_ItemType
-from task.FS_FileScannerTask import FS_FileScannerCtxt, FS_FileScannerTask
+from task.fs_filescannertask import FS_FileScannerCtxt, FS_FileScannerTask
 
 
 class FS_FileManager(object):

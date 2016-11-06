@@ -1,6 +1,7 @@
 from PyQt5.Qt import QMainWindow, QAction, QFileDialog, QIcon, QProgressBar, QModelIndex
 
-from task.FS_FileScannerTask import FS_FileScannerTask, FS_FileScannerCtxt
+from util.fs_app import FS_App
+from task.fs_filescannertask import FS_FileScannerTask, FS_FileScannerCtxt
 from .fs_filetreewidget import FS_FileTreeWidget
 from util.fs_base import FS_Base
 from model.fs_filetreemodel import FS_FileTreeModel
@@ -14,6 +15,14 @@ class FS_MainWindow(QMainWindow, FS_Base):
         QMainWindow.__init__(self)
         FS_Base.__init__(self)
 
+        self.progressbar = None
+        self.file_tree_widget = None
+        self.file_tree_model = None
+
+        self.build_ui()
+        self.build_content()
+
+    def build_ui(self):
         self.setWindowTitle("Filesystem Analyzer")
 
         set_path_action = QAction(QIcon("res/directory-submission-symbol.svg"), "Set path", self)
@@ -38,13 +47,19 @@ class FS_MainWindow(QMainWindow, FS_Base):
         self.setCentralWidget(self.file_tree_widget)
         self.show()
 
+    def build_content(self):
+        path = self.app.load_setting("path")
+        self.set_path(path)
+
     def set_path_action_handler(self):
         file_dialog = QFileDialog()
         path = file_dialog.getExistingDirectory(self, "Select directory", "/home/", QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks)
         self.logger.info("Path set to %s", path)
+        self.set_path(path)
+        self.app.save_setting("path", path)
 
+    def set_path(self, path):
         self.progressbar.show()
-
         self.file_tree_model.reset_root()
         file_scanner_ctxt = FS_FileScannerCtxt(path, self.file_tree_model.root)
         file_scanner_thread = FS_FileScannerTask(self, file_scanner_ctxt)
@@ -55,7 +70,7 @@ class FS_MainWindow(QMainWindow, FS_Base):
     def set_path_action_finish(self):
         self.progressbar.hide()
         self.file_tree_model.reset_model()
-        self.file_tree_widget.setColumnWidth(0, 150)
+        self.file_tree_widget.setColumnWidth(0, 250)
 
     def update_progress(self, value):
         self.progressbar.setValue(value)

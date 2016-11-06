@@ -10,7 +10,7 @@ class FS_ItemType(Enum):
 
 
 class FS_TreeItem(FS_Base):
-    ATTRIBUTES = ["name", "count", "size", "path"]
+    ATTRIBUTES = ["name", "count", "size (mb)", "path"]
     SIZE_DIVISOR = 1024 * 1024
 
     def __init__(self, name, item_type, path=None, parent=None):
