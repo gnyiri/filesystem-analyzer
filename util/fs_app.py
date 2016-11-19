@@ -27,7 +27,6 @@ class FS_App(object):
 
     def __init__(self):
         self._logger = FS_Logger.get_instance()
-        application_path = QApplication.applicationDirPath()
         self._settings_file = os.path.join("./", "config.ini")
         self._logger.info("Settings file: %s", self._settings_file)
 
