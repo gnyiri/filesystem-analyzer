@@ -2,7 +2,7 @@ import os
 
 from PyQt5.QtCore import QAbstractItemModel, QVariant, QModelIndex, Qt
 
-from .fstreeitem import FSTreeItem, FSItemType
+from .fstreeitem import FSTreeItem, FSExtensionType
 
 from util.fsbase import FSBase
 
@@ -28,7 +28,7 @@ class FSFileTreeModel(QAbstractItemModel, FSBase):
         self._root = value
 
     def reset_root(self):
-        self.root = FSTreeItem("Extensions", FSItemType.TYPE_EXTENSION, path=None, parent=None)
+        self.root = FSTreeItem("Extensions", None, path=None, parent=None)
 
     def reset_model(self):
         self.logger.info("Refresh tree")

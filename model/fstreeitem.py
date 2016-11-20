@@ -4,22 +4,18 @@ from PyQt5.Qt import QIcon, QVariant
 from enum import Enum
 
 from util.fsbase import FSBase
-
-
-class FSItemType(Enum):
-    TYPE_EXTENSION = 1
-    TYPE_FILE = 2
+from util.fsapp import FSExtensionType
 
 
 class FSTreeItem(FSBase):
     ATTRIBUTES = ["name", "count", "size (mb)", "path"]
     SIZE_DIVISOR = 1024 * 1024
 
-    def __init__(self, name, item_type, path=None, parent=None):
+    def __init__(self, name, extension_type=FSExtensionType.TYPE_FILE, path=None, parent=None):
         FSBase.__init__(self)
 
         self._name = name
-        self._item_type = item_type
+        self._extension_type = extension_type
         self._parent = parent
         if self._parent:
             self._parent.append_child(self)
@@ -66,7 +62,7 @@ class FSTreeItem(FSBase):
                 return str("n/a")
         elif role == Qt.DecorationRole:
             if column == 0:
-                if self.item_type == FSItemType.TYPE_EXTENSION:
+                if self.extension_type == FSExtensionType.TYPE_EXT:
                     return QVariant(QIcon("res/list.svg"))
                 else:
                     return QVariant(QIcon("res/office-material.svg"))
@@ -86,8 +82,8 @@ class FSTreeItem(FSBase):
             return 0
 
     @property
-    def item_type(self):
-        return self._item_type
+    def extension_type(self):
+        return self._extension_type
 
     @property
     def name(self):

@@ -1,13 +1,26 @@
 import threading
 import os
+from enum import Enum
 from PyQt5.Qt import QApplication, QSettings
 
 from .fslogger import FSLogger
 
 
+class FSExtensionType(Enum):
+    TYPE_EXT = 0
+    TYPE_FILE = 1
+    TYPE_MOVIE = 2
+    TYPE_MUSIC = 3
+    TYPE_IMAGE = 4
+
+
 class FSApp(object):
     _INST_LOCK = threading.Lock()
     _INSTANCE = None
+
+    ExtensionSettings = {FSExtensionType.TYPE_MOVIE: "MOVIE_EXTENSIONS",
+                         FSExtensionType.TYPE_MUSIC: "MUSIC_EXTENSIONS",
+                         FSExtensionType.TYPE_IMAGE: "IMAGE_EXTENSIONS"}
 
     @classmethod
     def get_instance(cls):
@@ -40,3 +53,9 @@ class FSApp(object):
         value = settings.value(name, "")
         self._logger.info("Load setting %s -> %s", name, str(value))
         return value
+
+    def extension_types(self):
+        return self.ExtensionSettings.keys()
+
+    def extension_setting_keys(self):
+        return self.ExtensionSettings.values()

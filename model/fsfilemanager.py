@@ -3,7 +3,7 @@ import os
 from PyQt5.QtCore import QThread
 
 from util.fslogger import FSLogger
-from model.fstreeitem import FSTreeItem, FSItemType
+from model.fstreeitem import FSTreeItem, FSExtensionType
 from task.fsfilescannertask import FSFileScannerContext, FSFileScannerTask
 
 
@@ -59,7 +59,7 @@ class FSFileManager(object):
 
         extension_items = dict()
 
-        root_item = FSTreeItem("Extensions", FSItemType.TYPE_EXTENSION, path=None, parent=None)
+        root_item = FSTreeItem("Extensions", FSExtensionType.TYPE_EXTENSION, path=None, parent=None)
 
         self.items.append(root_item)
 
@@ -68,11 +68,11 @@ class FSFileManager(object):
                 extension = os.path.splitext(file)[1]
 
                 if extension not in extension_items.keys():
-                    extension_items[extension] = FSTreeItem(extension, FSItemType.TYPE_EXTENSION, path=None,
+                    extension_items[extension] = FSTreeItem(extension, FSExtensionType.TYPE_EXTENSION, path=None,
                                                             parent=root_item)
 
                 extension_item = extension_items[extension]
                 self.items.append(
-                    FSTreeItem(file, FSItemType.TYPE_FILE, path=os.path.join(root, file), parent=extension_item))
+                    FSTreeItem(file, FSExtensionType.TYPE_FILE, path=os.path.join(root, file), parent=extension_item))
 
         self._logger.info("%d items found", len(self.items))

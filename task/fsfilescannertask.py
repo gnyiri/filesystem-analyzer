@@ -1,7 +1,7 @@
 import os
 from PyQt5.QtCore import QThread, pyqtSignal
 
-from model.fstreeitem import FSItemType, FSTreeItem
+from model.fstreeitem import FSExtensionType, FSTreeItem
 
 
 class FSFileScannerContext(object):
@@ -66,10 +66,10 @@ class FSFileScannerTask(QThread):
                 extension = os.path.splitext(file)[1]
 
                 if extension not in extension_items.keys():
-                    extension_items[extension] = FSTreeItem(extension, FSItemType.TYPE_EXTENSION, path=None, parent=self._ctxt.root)
+                    extension_items[extension] = FSTreeItem(extension, FSExtensionType.TYPE_EXT, path=None, parent=self._ctxt.root)
 
                 extension_item = extension_items[extension]
-                tree_item = FSTreeItem(file, FSItemType.TYPE_FILE, path=os.path.join(root, file), parent=extension_item)
+                tree_item = FSTreeItem(file, FSExtensionType.TYPE_FILE, path=os.path.join(root, file), parent=extension_item)
 
                 iter_count += 1
                 self.notifyProgress.emit(int((iter_count / file_count) * 100))

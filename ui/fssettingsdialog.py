@@ -14,8 +14,12 @@ class FSSettingsDialog(QDialog):
 
         layout = QVBoxLayout(self)
         form_layout = QFormLayout()
-        self.movie_extensions = QLineEdit(self.app.load_setting("MOVIE_EXTENSIONS"))
-        form_layout.addRow("Movie extensions: ", self.movie_extensions)
+        self.extension_inputs = list()
+        for extension_setting_key in self.app.extension_setting_keys():
+            extension_input = QLineEdit(self.app.load_setting(extension_setting_key))
+            self.extension_inputs.append(extension_input)
+            form_layout.addRow(extension_setting_key + ":", extension_input)
+
         ok_button = QPushButton("OK")
         ok_button.clicked.connect(self.ok_clicked)
         layout.addLayout(form_layout)
@@ -23,5 +27,6 @@ class FSSettingsDialog(QDialog):
         self.setLayout(layout)
 
     def ok_clicked(self):
-        self.app.save_setting("MOVIE_EXTENSIONS", self.movie_extensions.text())
+        for extension_input, extension_setting_key in zip(self.extension_inputs, self.app.extension_setting_keys()):
+            self.app.save_setting(extension_setting_key, extension_input.text())
         self.close()
