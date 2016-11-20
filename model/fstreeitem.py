@@ -1,4 +1,6 @@
 import os
+from PyQt5.QtCore import Qt
+from PyQt5.Qt import QIcon, QVariant
 from enum import Enum
 
 from util.fsbase import FSBase
@@ -33,8 +35,6 @@ class FSTreeItem(FSBase):
                 self.logger.exception(e)
                 return
 
-        # self.logger.debug("Created item %s, %s", name, path)
-
     @property
     def parent(self):
         return self._parent
@@ -52,17 +52,24 @@ class FSTreeItem(FSBase):
     def column_count(self):
         return len(FSTreeItem.ATTRIBUTES)
 
-    def data(self, column):
-        if column == 0:
-            return self.name
-        elif column == 1:
-            return len(self.children)
-        elif column == 2:
-            return self.size / FSTreeItem.SIZE_DIVISOR
-        elif column == 3:
-            return self.path
-        else:
-            return str("n/a")
+    def data(self, column, role=Qt.DisplayRole):
+        if role == Qt.DisplayRole:
+            if column == 0:
+                return self.name
+            elif column == 1:
+                return len(self.children)
+            elif column == 2:
+                return self.size / FSTreeItem.SIZE_DIVISOR
+            elif column == 3:
+                return self.path
+            else:
+                return str("n/a")
+        elif role == Qt.DecorationRole:
+            if column == 0:
+                if self.item_type == FSItemType.TYPE_EXTENSION:
+                    return QVariant(QIcon("res/list.svg"))
+                else:
+                    return QVariant(QIcon("res/office-material.svg"))
 
     def append_child(self, child):
         assert child

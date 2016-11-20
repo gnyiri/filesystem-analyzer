@@ -7,7 +7,7 @@ from .fstreeitem import FSTreeItem, FSItemType
 from util.fsbase import FSBase
 
 
-class FS_FileTreeModel(QAbstractItemModel, FSBase):
+class FSFileTreeModel(QAbstractItemModel, FSBase):
     """
     Encapsulates the file extension/file hierarchy as a model for the
     associated QTreeView
@@ -54,14 +54,7 @@ class FS_FileTreeModel(QAbstractItemModel, FSBase):
     def data(self, index, role=None):
         item = index.internalPointer() if index.isValid() else self._root
 
-        if role == Qt.DisplayRole:
-            return item.data(index.column())
-        elif role == Qt.DecorationRole:
-            return QVariant()
-        elif role == Qt.ToolTipRole:
-            return QVariant()
-        else:
-            return QVariant()
+        return item.data(index.column(), role)
 
     def flags(self, index):
         if not index.isValid():

@@ -3,8 +3,10 @@ from PyQt5.Qt import QMainWindow, QAction, QFileDialog, QIcon, QProgressBar, QPu
 from util.fsapp import FSApp
 from task.fsfilescannertask import FSFileScannerTask, FSFileScannerContext
 from .fsfiletreewidget import FSFileTreeWidget
+from .fsmovietablewidget import FSMovieTableWidget
+from .fssettingsdialog import FSSettingsDialog
 from util.fsbase import FSBase
-from model.fs_filetreemodel import FS_FileTreeModel
+from model.fsfiletreemodel import FSFileTreeModel
 
 
 class FSMainWindow(QMainWindow, FSBase):
@@ -21,21 +23,35 @@ class FSMainWindow(QMainWindow, FSBase):
         self.file_tree_model = None
         self.file_scanner_thread = None
 
+        self.movie_table_widget = None
+
         self.build_ui()
         self.build_content()
 
     def build_ui(self):
         self.setWindowTitle("Filesystem Analyzer")
 
+        settings_action = QAction(QIcon("res/settings.svg"), "Settings", self)
+        settings_action.setShortcut("Ctrl+S")
+        settings_action.triggered.connect(self.settings_action_handler)
+
         set_path_action = QAction(QIcon("res/directory-submission-symbol.svg"), "Set path", self)
         set_path_action.setShortcut("Ctrl+N")
         set_path_action.triggered.connect(self.set_path_action_handler)
 
+        refresh_action = QAction(QIcon("res/reload.svg"), "Refresh", self)
+        refresh_action.setShortcut("Ctrl+R")
+        refresh_action.triggered.connect(self.refresh_action_handler)
+
         menu_bar = self.menuBar()
         action_menu = menu_bar.addMenu("&Action")
+        action_menu.addAction(settings_action)
         action_menu.addAction(set_path_action)
+        action_menu.addAction(refresh_action)
         toolbar = self.addToolBar("Exit")
+        toolbar.addAction(settings_action)
         toolbar.addAction(set_path_action)
+        toolbar.addAction(refresh_action)
 
         self.progressbar = QProgressBar(self)
         self.progressbar.hide()
@@ -50,11 +66,18 @@ class FSMainWindow(QMainWindow, FSBase):
         self.tab_widget = QTabWidget(self)
 
         self.file_tree_widget = FSFileTreeWidget()
-        self.file_tree_model = FS_FileTreeModel()
+        self.file_tree_model = FSFileTreeModel()
         self.file_tree_widget.setModel(self.file_tree_model)
+
+        self.movie_table_widget = FSMovieTableWidget()
         self.tab_widget.addTab(self.file_tree_widget, "General")
+        self.tab_widget.addTab(self.movie_table_widget, "Movies")
         self.setCentralWidget(self.tab_widget)
         self.show()
+
+    def settings_action_handler(self):
+        settings_dialog = FSSettingsDialog(self)
+        settings_dialog.show()
 
     def build_content(self):
         path = self.app.load_setting("path")
@@ -84,6 +107,10 @@ class FSMainWindow(QMainWindow, FSBase):
 
     def set_path_cancel(self):
         self.file_scanner_thread.stop_flag = True
+
+    def refresh_action_handler(self):
+        path = self.app.load_setting("path")
+        self.set_path(path)
 
     def update_progress(self, value):
         self.progressbar.setValue(value)
