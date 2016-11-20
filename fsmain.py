@@ -3,8 +3,8 @@ import getopt
 import logging
 from PyQt5.Qt import QApplication
 
-from ui.fs_mainwindow import FS_MainWindow
-from util.fs_logger import FS_Logger
+from ui.fsmainwindow import FSMainWindow
+from util.fslogger import FSLogger
 
 
 def print_help():
@@ -12,7 +12,7 @@ def print_help():
 
 
 if __name__ == '__main__':
-    logger = FS_Logger.get_instance()
+    logger = FSLogger.get_instance()
     logger.setLevel(logging.DEBUG)
 
     try:
@@ -30,6 +30,6 @@ if __name__ == '__main__':
 
     logger.info("Start application")
     APP = QApplication(sys.argv)
-    ui = FS_MainWindow()
+    ui = FSMainWindow()
     ui.show()
     sys.exit(APP.exec_())

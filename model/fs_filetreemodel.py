@@ -2,19 +2,19 @@ import os
 
 from PyQt5.QtCore import QAbstractItemModel, QVariant, QModelIndex, Qt
 
-from .fs_treeitem import FS_TreeItem, FS_ItemType
+from .fstreeitem import FSTreeItem, FSItemType
 
-from util.fs_base import FS_Base
+from util.fsbase import FSBase
 
 
-class FS_FileTreeModel(QAbstractItemModel, FS_Base):
+class FS_FileTreeModel(QAbstractItemModel, FSBase):
     """
     Encapsulates the file extension/file hierarchy as a model for the
     associated QTreeView
     """
 
     def __init__(self, parent=None):
-        FS_Base.__init__(self)
+        FSBase.__init__(self)
         QAbstractItemModel.__init__(self, parent)
 
         self._root = None
@@ -28,7 +28,7 @@ class FS_FileTreeModel(QAbstractItemModel, FS_Base):
         self._root = value
 
     def reset_root(self):
-        self.root = FS_TreeItem("Extensions", FS_ItemType.TYPE_EXTENSION, path=None, parent=None)
+        self.root = FSTreeItem("Extensions", FSItemType.TYPE_EXTENSION, path=None, parent=None)
 
     def reset_model(self):
         self.logger.info("Refresh tree")
@@ -70,8 +70,8 @@ class FS_FileTreeModel(QAbstractItemModel, FS_Base):
 
     def headerData(self, section, orientation, role=None):
         if (orientation, role) == (Qt.Horizontal, Qt.DisplayRole):
-            if 0 <= section < len(FS_TreeItem.ATTRIBUTES):
-                return FS_TreeItem.ATTRIBUTES[section]
+            if 0 <= section < len(FSTreeItem.ATTRIBUTES):
+                return FSTreeItem.ATTRIBUTES[section]
         return QVariant()
 
     def index(self, row, column, parent=None):

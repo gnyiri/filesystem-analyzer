@@ -4,7 +4,7 @@ import sys
 import threading
 
 
-class FS_Logger(logging.Logger):
+class FSLogger(logging.Logger):
     _INST_LOCK = threading.Lock()
     _INSTANCE = None
 
@@ -14,7 +14,7 @@ class FS_Logger(logging.Logger):
         if cls._INSTANCE is None:
             with cls._INST_LOCK:
                 if cls._INSTANCE is None:
-                    __temp = FS_Logger()
+                    __temp = FSLogger()
                     cls._INSTANCE = __temp
         assert cls._INSTANCE is not None
         return cls._INSTANCE

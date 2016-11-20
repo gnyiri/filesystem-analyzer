@@ -1,16 +1,16 @@
-from .fs_logger import FS_Logger
-from .fs_app import FS_App
+from .fslogger import FSLogger
+from .fsapp import FSApp
 
 
-class FS_Base(object):
+class FSBase(object):
     """
     Base class for all PM classes
     """
     ROOT_DIRECTORY = "/proc"
 
     def __init__(self):
-        self._logger = FS_Logger.get_instance()
-        self._app = FS_App.get_instance()
+        self._logger = FSLogger.get_instance()
+        self._app = FSApp.get_instance()
 
     @property
     def logger(self):

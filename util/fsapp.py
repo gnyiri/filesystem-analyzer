@@ -2,10 +2,10 @@ import threading
 import os
 from PyQt5.Qt import QApplication, QSettings
 
-from .fs_logger import FS_Logger
+from .fslogger import FSLogger
 
 
-class FS_App(object):
+class FSApp(object):
     _INST_LOCK = threading.Lock()
     _INSTANCE = None
 
@@ -15,7 +15,7 @@ class FS_App(object):
         if cls._INSTANCE is None:
             with cls._INST_LOCK:
                 if cls._INSTANCE is None:
-                    cls._INSTANCE = FS_App()
+                    cls._INSTANCE = FSApp()
         assert cls._INSTANCE is not None
         return cls._INSTANCE
 
@@ -26,7 +26,7 @@ class FS_App(object):
         return cls._INSTANCE
 
     def __init__(self):
-        self._logger = FS_Logger.get_instance()
+        self._logger = FSLogger.get_instance()
         self._settings_file = os.path.join("./", "config.ini")
         self._logger.info("Settings file: %s", self._settings_file)
 

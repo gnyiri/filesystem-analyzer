@@ -1,20 +1,20 @@
 import os
 from enum import Enum
 
-from util.fs_base import FS_Base
+from util.fsbase import FSBase
 
 
-class FS_ItemType(Enum):
+class FSItemType(Enum):
     TYPE_EXTENSION = 1
     TYPE_FILE = 2
 
 
-class FS_TreeItem(FS_Base):
+class FSTreeItem(FSBase):
     ATTRIBUTES = ["name", "count", "size (mb)", "path"]
     SIZE_DIVISOR = 1024 * 1024
 
     def __init__(self, name, item_type, path=None, parent=None):
-        FS_Base.__init__(self)
+        FSBase.__init__(self)
 
         self._name = name
         self._item_type = item_type
@@ -50,7 +50,7 @@ class FS_TreeItem(FS_Base):
         return len(self.children)
 
     def column_count(self):
-        return len(FS_TreeItem.ATTRIBUTES)
+        return len(FSTreeItem.ATTRIBUTES)
 
     def data(self, column):
         if column == 0:
@@ -58,7 +58,7 @@ class FS_TreeItem(FS_Base):
         elif column == 1:
             return len(self.children)
         elif column == 2:
-            return self.size / FS_TreeItem.SIZE_DIVISOR
+            return self.size / FSTreeItem.SIZE_DIVISOR
         elif column == 3:
             return self.path
         else:

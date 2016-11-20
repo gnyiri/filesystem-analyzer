@@ -1,1 +1,1 @@
-from .fs_logger import FS_Logger
+from .fslogger import FSLogger

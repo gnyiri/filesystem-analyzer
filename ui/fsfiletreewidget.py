@@ -1,7 +1,7 @@
 from PyQt5.Qt import QTreeView, QSizePolicy, QMenu, Qt, QAction, QIcon, QCursor
 
 
-class FS_FileTreeWidget(QTreeView):
+class FSFileTreeWidget(QTreeView):
     def __init__(self, parent=None):
         QTreeView.__init__(self, parent)
 

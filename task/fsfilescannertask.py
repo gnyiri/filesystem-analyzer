@@ -1,10 +1,10 @@
 import os
 from PyQt5.QtCore import QThread, pyqtSignal
 
-from model.fs_treeitem import FS_ItemType, FS_TreeItem
+from model.fstreeitem import FSItemType, FSTreeItem
 
 
-class FS_FileScannerCtxt(object):
+class FSFileScannerContext(object):
     """
     Context for passing arguments to the thread objects
     """
@@ -16,12 +16,13 @@ class FS_FileScannerCtxt(object):
         self.root = root
 
 
-class FS_FileScannerTask(QThread):
+class FSFileScannerTask(QThread):
     """
     File scanning task on a separate thread
     """
     notifyProgress = pyqtSignal(int)
     notifyFinish = pyqtSignal()
+    notifyError = pyqtSignal(str)
 
     def __init__(self, parent=None, ctxt=None):
         """
@@ -42,8 +43,10 @@ class FS_FileScannerTask(QThread):
         self._stop_flag = value
 
     def run(self):
-        assert isinstance(self._ctxt, FS_FileScannerCtxt)
-        assert os.path.isdir(self._ctxt.path)
+        assert isinstance(self._ctxt, FSFileScannerContext)
+
+        if not os.path.isdir(self._ctxt.path):
+            self.notifyError.emit("Wrong path!")
 
         extension_items = dict()
 
@@ -63,10 +66,10 @@ class FS_FileScannerTask(QThread):
                 extension = os.path.splitext(file)[1]
 
                 if extension not in extension_items.keys():
-                    extension_items[extension] = FS_TreeItem(extension, FS_ItemType.TYPE_EXTENSION, path=None, parent=self._ctxt.root)
+                    extension_items[extension] = FSTreeItem(extension, FSItemType.TYPE_EXTENSION, path=None, parent=self._ctxt.root)
 
                 extension_item = extension_items[extension]
-                tree_item = FS_TreeItem(file, FS_ItemType.TYPE_FILE, path=os.path.join(root, file), parent=extension_item)
+                tree_item = FSTreeItem(file, FSItemType.TYPE_FILE, path=os.path.join(root, file), parent=extension_item)
 
                 iter_count += 1
                 self.notifyProgress.emit(int((iter_count / file_count) * 100))

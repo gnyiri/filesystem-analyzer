@@ -1,21 +1,22 @@
-from PyQt5.Qt import QMainWindow, QAction, QFileDialog, QIcon, QProgressBar, QPushButton
+from PyQt5.Qt import QMainWindow, QAction, QFileDialog, QIcon, QProgressBar, QPushButton, QTabWidget
 
-from util.fs_app import FS_App
-from task.fs_filescannertask import FS_FileScannerTask, FS_FileScannerCtxt
-from .fs_filetreewidget import FS_FileTreeWidget
-from util.fs_base import FS_Base
+from util.fsapp import FSApp
+from task.fsfilescannertask import FSFileScannerTask, FSFileScannerContext
+from .fsfiletreewidget import FSFileTreeWidget
+from util.fsbase import FSBase
 from model.fs_filetreemodel import FS_FileTreeModel
 
 
-class FS_MainWindow(QMainWindow, FS_Base):
+class FSMainWindow(QMainWindow, FSBase):
     """
     Main Window
     """
     def __init__(self):
         QMainWindow.__init__(self)
-        FS_Base.__init__(self)
+        FSBase.__init__(self)
 
         self.progressbar = None
+        self.tab_widget = None
         self.file_tree_widget = None
         self.file_tree_model = None
         self.file_scanner_thread = None
@@ -46,10 +47,13 @@ class FS_MainWindow(QMainWindow, FS_Base):
         self.statusBar().addPermanentWidget(self.progressbar)
         self.statusBar().addPermanentWidget(cancel_button)
 
-        self.file_tree_widget = FS_FileTreeWidget(self)
-        self.file_tree_model = FS_FileTreeModel(self)
+        self.tab_widget = QTabWidget(self)
+
+        self.file_tree_widget = FSFileTreeWidget()
+        self.file_tree_model = FS_FileTreeModel()
         self.file_tree_widget.setModel(self.file_tree_model)
-        self.setCentralWidget(self.file_tree_widget)
+        self.tab_widget.addTab(self.file_tree_widget, "General")
+        self.setCentralWidget(self.tab_widget)
         self.show()
 
     def build_content(self):
@@ -66,10 +70,11 @@ class FS_MainWindow(QMainWindow, FS_Base):
     def set_path(self, path):
         self.progressbar.show()
         self.file_tree_model.reset_root()
-        file_scanner_ctxt = FS_FileScannerCtxt(path, self.file_tree_model.root)
-        self.file_scanner_thread = FS_FileScannerTask(self, file_scanner_ctxt)
+        file_scanner_ctxt = FSFileScannerContext(path, self.file_tree_model.root)
+        self.file_scanner_thread = FSFileScannerTask(self, file_scanner_ctxt)
         self.file_scanner_thread.notifyProgress.connect(self.update_progress)
         self.file_scanner_thread.notifyFinish.connect(self.set_path_action_finish)
+        self.file_scanner_thread.notifyError.connect(self.report_error)
         self.file_scanner_thread.start()
 
     def set_path_action_finish(self):
@@ -82,3 +87,6 @@ class FS_MainWindow(QMainWindow, FS_Base):
 
     def update_progress(self, value):
         self.progressbar.setValue(value)
+
+    def report_error(self, error):
+        print(error)

@@ -2,12 +2,12 @@ import threading
 import os
 from PyQt5.QtCore import QThread
 
-from util.fs_logger import FS_Logger
-from model.fs_treeitem import FS_TreeItem, FS_ItemType
-from task.fs_filescannertask import FS_FileScannerCtxt, FS_FileScannerTask
+from util.fslogger import FSLogger
+from model.fstreeitem import FSTreeItem, FSItemType
+from task.fsfilescannertask import FSFileScannerContext, FSFileScannerTask
 
 
-class FS_FileManager(object):
+class FSFileManager(object):
     _INST_LOCK = threading.Lock()
     _INSTANCE = None
 
@@ -17,7 +17,7 @@ class FS_FileManager(object):
         if cls._INSTANCE is None:
             with cls._INST_LOCK:
                 if cls._INSTANCE is None:
-                    cls._INSTANCE = FS_FileManager()
+                    cls._INSTANCE = FSFileManager()
         assert cls._INSTANCE is not None
         return cls._INSTANCE
 
@@ -28,7 +28,7 @@ class FS_FileManager(object):
         return cls._INSTANCE
 
     def __init__(self):
-        self._logger = FS_Logger.get_instance()
+        self._logger = FSLogger.get_instance()
         self._path = "."
         self._items = list()
 
@@ -59,7 +59,7 @@ class FS_FileManager(object):
 
         extension_items = dict()
 
-        root_item = FS_TreeItem("Extensions", FS_ItemType.TYPE_EXTENSION, path=None, parent=None)
+        root_item = FSTreeItem("Extensions", FSItemType.TYPE_EXTENSION, path=None, parent=None)
 
         self.items.append(root_item)
 
@@ -68,11 +68,11 @@ class FS_FileManager(object):
                 extension = os.path.splitext(file)[1]
 
                 if extension not in extension_items.keys():
-                    extension_items[extension] = FS_TreeItem(extension, FS_ItemType.TYPE_EXTENSION, path=None,
-                                                             parent=root_item)
+                    extension_items[extension] = FSTreeItem(extension, FSItemType.TYPE_EXTENSION, path=None,
+                                                            parent=root_item)
 
                 extension_item = extension_items[extension]
                 self.items.append(
-                    FS_TreeItem(file, FS_ItemType.TYPE_FILE, path=os.path.join(root, file), parent=extension_item))
+                    FSTreeItem(file, FSItemType.TYPE_FILE, path=os.path.join(root, file), parent=extension_item))
 
         self._logger.info("%d items found", len(self.items))
