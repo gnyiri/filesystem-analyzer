@@ -1,22 +1,22 @@
 import os
 from PyQt5.QtCore import QThread, pyqtSignal
 
-from model.fstreeitem import FSExtensionType, FSTreeItem
+from model.fsmovietablemodel import FSMovie
 
 
-class FSFileScannerContext(object):
+class FSMovieScannerContext(object):
     """
     Context for passing arguments to the thread objects
     """
-    def __init__(self, path, root):
+    def __init__(self, path, movies):
         """
-        :param path: the root path of the file scanning process
+        :param path: the root path of the movie scanning process
         """
         self.path = path
-        self.root = root
+        self.movies = movies
 
 
-class FSFileScannerTask(QThread):
+class FSMovieScannerTask(QThread):
     """
     File scanning task on a separate thread
     """
@@ -43,12 +43,10 @@ class FSFileScannerTask(QThread):
         self._stop_flag = value
 
     def run(self):
-        assert isinstance(self._context, FSFileScannerContext)
+        assert isinstance(self._context, FSMovieScannerContext)
 
         if not os.path.isdir(self._context.path):
             self.notifyError.emit("Wrong path!")
-
-        extension_items = dict()
 
         file_count = 0
 
@@ -65,13 +63,8 @@ class FSFileScannerTask(QThread):
                     break
                 extension = os.path.splitext(file)[1]
 
-                if extension not in extension_items.keys():
-                    extension_items[extension] = FSTreeItem(extension, FSExtensionType.TYPE_EXT, path=None, parent=self._context.root)
-
-                extension_item = extension_items[extension]
-                tree_item = FSTreeItem(file, FSExtensionType.TYPE_FILE, path=os.path.join(root, file), parent=extension_item)
-
                 iter_count += 1
+                self._context.movies.append(FSMovie(file, os.path.join(root, file), "title", "url"))
                 self.notifyProgress.emit(int((iter_count / file_count) * 100))
 
         self.notifyFinish.emit()

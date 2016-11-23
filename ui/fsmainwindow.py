@@ -1,12 +1,14 @@
-from PyQt5.Qt import QMainWindow, QAction, QFileDialog, QIcon, QProgressBar, QPushButton, QTabWidget
+from PyQt5.Qt import QMainWindow, QAction, QFileDialog, QIcon, QProgressBar, QPushButton, QTabWidget, QTableView
 
 from util.fsapp import FSApp
 from task.fsfilescannertask import FSFileScannerTask, FSFileScannerContext
+from task.fsmoviescannertask import FSMovieScannerContext, FSMovieScannerTask
 from .fsfiletreewidget import FSFileTreeWidget
 from .fsmovietablewidget import FSMovieTableWidget
 from .fssettingsdialog import FSSettingsDialog
 from util.fsbase import FSBase
 from model.fsfiletreemodel import FSFileTreeModel
+from model.fsmovietablemodel import FSMovieTableModel, FSMovie
 
 
 class FSMainWindow(QMainWindow, FSBase):
@@ -24,6 +26,8 @@ class FSMainWindow(QMainWindow, FSBase):
         self.file_scanner_thread = None
 
         self.movie_table_widget = None
+        self.movie_table_model = None
+        self.movie_scanner_thread = None
 
         self.build_ui()
         self.build_content()
@@ -70,6 +74,13 @@ class FSMainWindow(QMainWindow, FSBase):
         self.file_tree_widget.setModel(self.file_tree_model)
 
         self.movie_table_widget = FSMovieTableWidget()
+        self.movie_table_widget.setShowGrid(False)
+        self.movie_table_widget.setAlternatingRowColors(True)
+        self.movie_table_widget.verticalHeader().setVisible(False)
+        self.movie_table_widget.setSelectionBehavior(QTableView.SelectRows)
+        self.movie_table_model = FSMovieTableModel()
+        self.movie_table_model.add_movie(FSMovie("hekk", "hekk", "hekk", "hekk"))
+        self.movie_table_widget.setModel(self.movie_table_model)
         self.tab_widget.addTab(self.file_tree_widget, "General")
         self.tab_widget.addTab(self.movie_table_widget, "Movies")
         self.setCentralWidget(self.tab_widget)
@@ -92,18 +103,31 @@ class FSMainWindow(QMainWindow, FSBase):
 
     def set_path(self, path):
         self.progressbar.show()
-        self.file_tree_model.reset_root()
-        file_scanner_ctxt = FSFileScannerContext(path, self.file_tree_model.root)
-        self.file_scanner_thread = FSFileScannerTask(self, file_scanner_ctxt)
-        self.file_scanner_thread.notifyProgress.connect(self.update_progress)
-        self.file_scanner_thread.notifyFinish.connect(self.set_path_action_finish)
-        self.file_scanner_thread.notifyError.connect(self.report_error)
-        self.file_scanner_thread.start()
+
+        if self.tab_widget.currentIndex() == 0:
+            self.file_tree_model.reset_root()
+            file_scanner_context = FSFileScannerContext(path, self.file_tree_model.root)
+            self.file_scanner_thread = FSFileScannerTask(self, file_scanner_context)
+            self.file_scanner_thread.notifyProgress.connect(self.update_progress)
+            self.file_scanner_thread.notifyFinish.connect(self.set_path_action_finish)
+            self.file_scanner_thread.notifyError.connect(self.report_error)
+            self.file_scanner_thread.start()
+        else:
+            movie_scanner_context = FSMovieScannerContext(path, self.movie_table_model.movies)
+            self.movie_scanner_thread = FSMovieScannerTask(self, movie_scanner_context)
+            self.movie_scanner_thread.notifyProgress.connect(self.update_progress)
+            self.movie_scanner_thread.notifyFinish.connect(self.set_path_action_finish)
+            self.movie_scanner_thread.notifyError.connect(self.report_error)
+            self.movie_scanner_thread.start()
 
     def set_path_action_finish(self):
         self.progressbar.hide()
-        self.file_tree_model.reset_model()
-        self.file_tree_widget.setColumnWidth(0, 250)
+        if self.tab_widget.currentIndex() == 0:
+            self.file_tree_model.reset_model()
+            self.file_tree_widget.setColumnWidth(0, 250)
+        else:
+            self.movie_table_model.reset_model()
+            self.movie_table_widget.resizeColumnsToContents()
 
     def set_path_cancel(self):
         self.file_scanner_thread.stop_flag = True
