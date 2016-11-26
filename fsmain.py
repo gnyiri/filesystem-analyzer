@@ -8,7 +8,7 @@ from util.fslogger import FSLogger
 
 
 def print_help():
-    print("help")
+    print("help: help")
 
 
 if __name__ == '__main__':
