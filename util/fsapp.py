@@ -18,9 +18,9 @@ class FSApp(object):
     _INST_LOCK = threading.Lock()
     _INSTANCE = None
 
-    ExtensionSettings = {FSExtensionType.TYPE_MOVIE: "MOVIE_EXTENSIONS",
-                         FSExtensionType.TYPE_MUSIC: "MUSIC_EXTENSIONS",
-                         FSExtensionType.TYPE_IMAGE: "IMAGE_EXTENSIONS"}
+    ExtensionSettings = {FSExtensionType.TYPE_MOVIE: "Movie_extensions",
+                         FSExtensionType.TYPE_MUSIC: "Music_extensions",
+                         FSExtensionType.TYPE_IMAGE: "Image_extensions"}
 
     @classmethod
     def get_instance(cls):

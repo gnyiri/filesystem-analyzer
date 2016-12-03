@@ -1,20 +1,36 @@
 from PyQt5.QtCore import QVariant, QAbstractTableModel, Qt, QModelIndex
+from guessit import guessit
 
 
 class FSMovie(object):
-    def __init__(self, file, path, title=None, url=None):
-        self.file = file
+    def __init__(self, path):
         self.path = path
-        self.title = title
-        self.url = url
+        self.title = str("n/a")
+        self.year = str("n/a")
+        self.type = str("n/a")
+        self.url = str("n/a")
+
+        self.update()
+
+    def update(self):
+        description = guessit(self.path)
+        if description:
+            if 'title' in description.keys():
+                self.title = description['title']
+            if 'year' in description.keys():
+                self.year = description['year']
+            if 'type' in description['type']:
+                self.type = description['type']
 
 
 class FSMovieTableModel(QAbstractTableModel):
-    HEADERS = ["File", "Path", "Title", "Url"]
-    FILE = 0
-    PATH = 1
-    TITLE = 2
+    HEADERS = ["Title", "Year", "Type", "Url", "Path"]
+
+    TITLE = 0
+    YEAR = 1
+    TYPE = 2
     URL = 3
+    PATH = 4
 
     def __init__(self, parent=None):
         QAbstractTableModel.__init__(self, parent)
@@ -27,9 +43,7 @@ class FSMovieTableModel(QAbstractTableModel):
         return len(FSMovieTableModel.HEADERS)
 
     def sort(self, column, Qt_SortOrder_order=None):
-        if column == FSMovieTableModel.FILE:
-            self.movies = sorted(self.movies, key=lambda movie: movie.filename)
-        elif column == FSMovieTableModel.PATH:
+        if column == FSMovieTableModel.PATH:
             self.movies = sorted(self.movies, key=lambda movie: movie.path)
         elif column == FSMovieTableModel.TITLE:
             self.movies = sorted(self.movies, key=lambda movie: movie.title)
@@ -43,14 +57,16 @@ class FSMovieTableModel(QAbstractTableModel):
         movie = self.movies[index.row()]
         column = index.column()
         if role == Qt.DisplayRole:
-            if column == FSMovieTableModel.FILE:
-                return QVariant(movie.file)
-            elif column == FSMovieTableModel.PATH:
-                return QVariant(movie.path)
-            elif column == FSMovieTableModel.TITLE:
+            if column == FSMovieTableModel.TITLE:
                 return QVariant(movie.title)
+            elif column == FSMovieTableModel.YEAR:
+                return QVariant(movie.year)
+            elif column == FSMovieTableModel.TYPE:
+                return QVariant(movie.type)
             elif column == FSMovieTableModel.URL:
                 return QVariant(movie.url)
+            elif column == FSMovieTableModel.PATH:
+                return QVariant(movie.path)
         return QVariant()
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):

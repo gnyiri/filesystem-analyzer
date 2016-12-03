@@ -1,6 +1,6 @@
 from PyQt5.Qt import QMainWindow, QAction, QFileDialog, QIcon, QProgressBar, QPushButton, QTabWidget, QTableView
 
-from util.fsapp import FSApp
+from util.fsapp import FSApp, FSExtensionType
 from task.fsfilescannertask import FSFileScannerTask, FSFileScannerContext
 from task.fsmoviescannertask import FSMovieScannerContext, FSMovieScannerTask
 from .fsfiletreewidget import FSFileTreeWidget
@@ -79,11 +79,16 @@ class FSMainWindow(QMainWindow, FSBase):
         self.movie_table_widget.verticalHeader().setVisible(False)
         self.movie_table_widget.setSelectionBehavior(QTableView.SelectRows)
         self.movie_table_model = FSMovieTableModel()
-        self.movie_table_model.add_movie(FSMovie("hekk", "hekk", "hekk", "hekk"))
         self.movie_table_widget.setModel(self.movie_table_model)
         self.tab_widget.addTab(self.file_tree_widget, "General")
         self.tab_widget.addTab(self.movie_table_widget, "Movies")
         self.setCentralWidget(self.tab_widget)
+
+        last_tab_index = self.app.load_setting("last_tab_index")
+        if last_tab_index:
+            self.tab_widget.setCurrentIndex(int(last_tab_index))
+        self.tab_widget.currentChanged.connect(self.tab_widget_changed)
+
         self.show()
 
     def settings_action_handler(self):
@@ -113,7 +118,9 @@ class FSMainWindow(QMainWindow, FSBase):
             self.file_scanner_thread.notifyError.connect(self.report_error)
             self.file_scanner_thread.start()
         else:
-            movie_scanner_context = FSMovieScannerContext(path, self.movie_table_model.movies)
+            movie_extensions = self.app.load_setting(self.app.ExtensionSettings[FSExtensionType.TYPE_MOVIE])
+            movie_extensions_list = [movie_extension.strip() for movie_extension in movie_extensions.split(",")]
+            movie_scanner_context = FSMovieScannerContext(path, self.movie_table_model.movies, movie_extensions_list)
             self.movie_scanner_thread = FSMovieScannerTask(self, movie_scanner_context)
             self.movie_scanner_thread.notifyProgress.connect(self.update_progress)
             self.movie_scanner_thread.notifyFinish.connect(self.set_path_action_finish)
@@ -141,3 +148,6 @@ class FSMainWindow(QMainWindow, FSBase):
 
     def report_error(self, error):
         print(error)
+
+    def tab_widget_changed(self, index):
+        self.app.save_setting("last_tab_index", index)

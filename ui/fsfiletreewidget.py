@@ -5,7 +5,7 @@ class FSFileTreeWidget(QTreeView):
     def __init__(self, parent=None):
         QTreeView.__init__(self, parent)
 
-        self.setMinimumWidth(900)
+        self.setMinimumWidth(1100)
         self.setMinimumHeight(500)
         self.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
         self.setSelectionMode(QTreeView.ExtendedSelection)
